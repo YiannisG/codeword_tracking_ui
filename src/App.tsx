@@ -1,39 +1,52 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-type resultProps = {
-  codeword: number;
-  id: string;
-};
+const CodewordsForm: React.FC = () => {
+  const [formData, setFormData] = useState({
+    action_id: '',
+  });
+  const [submitMessage, setSubmitMessage] = useState<string>();
 
-export default function App() {
-  const [result, setResult] = useState<resultProps[]>([]);
-
-  const api = async () => {
-    const data = await fetch("/get-actions", {
-      method: "GET"
-    });
-    const jsonData = await data.json();
-    setResult(jsonData.result);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
   };
 
-  useEffect(() => {
-    api();
-  }, []);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const response = await fetch('/get-codewords', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {throw new Error('Failed to submit action_id')}
+
+      const jsonData = await response.json();
+      setSubmitMessage('Codewords returned: ' + JSON.stringify(jsonData.result));
+      console.log('Submission successful');
+    } catch (error) {
+      console.error('Error with submission:', error);
+    }
+  };
 
   return (
-    <div className="App">
-      <h1>
-      <button onClick={api}>get-actions</button>
-        {result.map((value) => {
-          return (
-            <div>
-              <div>{value.codeword}</div>
-              <div>{value.id}</div>
-            </div>
-          );
-        })}
-      </h1>
-      <h2>Start editing to see some magic happen!</h2>
+    <div>
+      <h1>Query codewords</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>
+          action_id:
+          </label>
+          <input type="text" value={formData.action_id} onChange={handleChange}/>
+        </div>
+        <button>Submit</button>
+      </form>
+      {submitMessage && <div>{submitMessage}</div>}
     </div>
   );
-}
+};
+
+export default CodewordsForm;
