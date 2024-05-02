@@ -40,7 +40,7 @@ const CodewordsForm: React.FC = () => {
           <label>
           action_id:
           </label>
-          <input type="text" defaultValue={formData.action_id} onChange={handleChange}/>
+          <input type="text" id="action_id" name="action_id" value={formData.action_id} onChange={handleChange}/>
         </div>
         <button>Submit</button>
       </form>
